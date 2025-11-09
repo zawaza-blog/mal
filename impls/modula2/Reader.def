@@ -1,0 +1,27 @@
+DEFINITION MODULE Reader;
+
+(* MAL Reader - Definition Module *)
+
+FROM Types IMPORT MalVal;
+FROM DynString IMPORT String, CharArrayPtr;
+FROM IOChan IMPORT ChanId;
+
+(* Read a string and return a MAL value *)
+PROCEDURE ReadStr(VAR str: ARRAY OF CHAR): MalVal;
+
+(* Error handling *)
+PROCEDURE HasError(): BOOLEAN;
+PROCEDURE GetError(): String;
+PROCEDURE GetErrorPtr(): CharArrayPtr;
+PROCEDURE WriteErrorTo(cid: ChanId);
+PROCEDURE ClearError();
+PROCEDURE SetError(msg: ARRAY OF CHAR);
+PROCEDURE SetErrorString(msg: String);
+
+(* Exception handling *)
+PROCEDURE HasException(): BOOLEAN;
+PROCEDURE GetException(): MalVal;
+PROCEDURE ClearException();
+PROCEDURE SetException(val: MalVal);
+
+END Reader.

@@ -97,6 +97,7 @@ FAQ](docs/FAQ.md) where I attempt to answer some common questions.
 | [mal itself](#mal) | [Joel Martin](https://github.com/kanaka)  |
 | [MATLAB](#matlab-gnu-octave-and-matlab) (GNU Octave &amp; MATLAB) | [Joel Martin](https://github.com/kanaka) |
 | [miniMAL](#minimal) ([Repo](https://github.com/kanaka/miniMAL), [Demo](https://kanaka.github.io/miniMAL/)) | [Joel Martin](https://github.com/kanaka) |
+| [Modula2](#Modula2) | [Jose Rubio](https://github.com/zawaza-blog) |
 | [NASM](#nasm) | [Ben Dudson](https://github.com/bendudson) |
 | [Nim](#nim-104) | [Dennis Felsing](https://github.com/def-) |
 | [Object Pascal](#object-pascal) | [Joel Martin](https://github.com/kanaka)  |
@@ -762,6 +763,16 @@ IMPL_STEPA_CMD ../mal/stepX_YYY.mal
 ```
 cd impls/make
 make -f stepX_YYY.mk
+```
+
+### Modula2
+
+The Modula-2 implementation of mal is written with the GNU Modula-2.  
+It has been tested with Ubuntu 24 and gm2 13.3
+
+```
+make "docker-build^modula2"
+make DOCKERIZE=1 "test^modula2"
 ```
 
 ### NASM

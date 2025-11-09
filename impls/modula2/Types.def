@@ -1,0 +1,137 @@
+DEFINITION MODULE Types;
+
+(* MAL Types - Definition Module *)
+
+FROM SYSTEM IMPORT ADDRESS;
+FROM DynString IMPORT String;
+
+TYPE
+  MalType = (
+    MAL_NIL,
+    MAL_TRUE,
+    MAL_FALSE,
+    MAL_INTEGER,
+    MAL_SYMBOL,
+    MAL_STRING,
+    MAL_KEYWORD,
+    MAL_LIST,
+    MAL_VECTOR,
+    MAL_HASHMAP,
+    MAL_NATIVE_FN,
+    MAL_FUNCTION,
+    MAL_ATOM
+  );
+
+  MalVal = POINTER TO MalValRec;
+
+  (* Native function type - takes a list of args and returns a MalVal *)
+  NativeFn = PROCEDURE(MalVal): MalVal;
+
+  MalValRec = RECORD
+    meta: MalVal;  (* Metadata - NIL if no metadata attached *)
+    CASE type: MalType OF
+      MAL_NIL, MAL_TRUE, MAL_FALSE:
+        (* No data needed *)
+    | MAL_INTEGER:
+        intVal: INTEGER;
+    | MAL_SYMBOL, MAL_STRING, MAL_KEYWORD:
+        strVal: String;
+    | MAL_LIST, MAL_VECTOR:
+        listVal: MalList;
+        listTail: MalList;  (* Tail pointer for O(1) append *)
+    | MAL_HASHMAP:
+        treeRoot: RBNode;   (* Red-Black tree root *)
+        treeSize: CARDINAL; (* Number of key-value pairs *)
+    | MAL_NATIVE_FN:
+        nativeFn: NativeFn;
+    | MAL_FUNCTION:
+        params: MalVal;      (* List of parameter symbols *)
+        body: MalVal;        (* Function body expression *)
+        closure: ADDRESS;    (* Closure environment (Env pointer) *)
+        isMacro: BOOLEAN;    (* TRUE if this is a macro *)
+    | MAL_ATOM:
+        atomVal: MalVal;     (* Value stored in atom *)
+    END;
+  END;
+
+  MalList = POINTER TO MalListNode;
+
+  MalListNode = RECORD
+    val: MalVal;
+    next: MalList;
+  END;
+
+  (* Red-Black Tree for hash-maps *)
+  RBColor = (RED, BLACK);
+
+  RBNode = POINTER TO RBNodeRec;
+
+  RBNodeRec = RECORD
+    color: RBColor;
+    key: String;    (* String key (keywords include ':') *)
+    value: MalVal;
+    left: RBNode;
+    right: RBNode;
+    parent: RBNode;
+  END;
+
+(* Constructors *)
+PROCEDURE NewNil(): MalVal;
+PROCEDURE NewTrue(): MalVal;
+PROCEDURE NewFalse(): MalVal;
+PROCEDURE NewInteger(value: INTEGER): MalVal;
+PROCEDURE NewSymbol(VAR str: ARRAY OF CHAR): MalVal;
+PROCEDURE NewString(VAR str: ARRAY OF CHAR): MalVal;
+PROCEDURE NewKeyword(VAR str: ARRAY OF CHAR): MalVal;
+
+(* Constructors that copy from existing String *)
+PROCEDURE NewSymbolCopy(str: String): MalVal;
+PROCEDURE NewStringCopy(str: String): MalVal;
+PROCEDURE NewKeywordCopy(str: String): MalVal;
+PROCEDURE NewList(): MalVal;
+PROCEDURE NewVector(): MalVal;
+PROCEDURE NewHashMap(): MalVal;
+PROCEDURE NewNativeFn(fn: NativeFn): MalVal;
+PROCEDURE NewFunction(params: MalVal; body: MalVal; env: ADDRESS; isMacro: BOOLEAN): MalVal;
+PROCEDURE NewAtom(val: MalVal): MalVal;
+
+(* Atom operations *)
+PROCEDURE AtomDeref(atom: MalVal): MalVal;
+PROCEDURE AtomReset(atom: MalVal; val: MalVal): MalVal;
+
+(* List operations *)
+PROCEDURE ListAppend(list: MalVal; val: MalVal);
+PROCEDURE ListLength(list: MalVal): CARDINAL;
+PROCEDURE ListGet(list: MalVal; index: CARDINAL): MalVal;
+
+(* Type checking *)
+PROCEDURE IsNil(val: MalVal): BOOLEAN;
+PROCEDURE IsList(val: MalVal): BOOLEAN;
+PROCEDURE IsVector(val: MalVal): BOOLEAN;
+PROCEDURE IsSeq(val: MalVal): BOOLEAN;  (* List or Vector *)
+PROCEDURE IsAtom(val: MalVal): BOOLEAN;
+PROCEDURE IsSpecialForm(val: MalVal; formName: ARRAY OF CHAR): BOOLEAN;
+
+(* Memory management *)
+PROCEDURE FreeMalVal(val: MalVal);
+
+(* Fast allocation using libc malloc *)
+PROCEDURE Alloc(size: CARDINAL): ADDRESS;
+
+(* Red-Black Tree operations for hash-maps *)
+PROCEDURE RBInsertString(VAR root: RBNode; key: String; value: MalVal);
+PROCEDURE RBSearchString(root: RBNode; key: String): MalVal;
+PROCEDURE RBContainsString(root: RBNode; key: String): BOOLEAN;
+PROCEDURE RBDeleteString(VAR root: RBNode; key: String);
+PROCEDURE RBSize(root: RBNode): CARDINAL;
+
+(* Hash-map operations *)
+PROCEDURE HashMapPutString(hmap: MalVal; key: String; value: MalVal);
+PROCEDURE HashMapGetString(hmap: MalVal; key: String): MalVal;
+PROCEDURE HashMapContainsString(hmap: MalVal; key: String): BOOLEAN;
+PROCEDURE HashMapDeleteString(hmap: MalVal; key: String);
+PROCEDURE HashMapKeys(hmap: MalVal): MalVal;
+PROCEDURE HashMapVals(hmap: MalVal): MalVal;
+PROCEDURE HashMapCopy(hmap: MalVal): MalVal;
+
+END Types.

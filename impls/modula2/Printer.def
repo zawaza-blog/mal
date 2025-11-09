@@ -1,0 +1,15 @@
+DEFINITION MODULE Printer;
+
+(* MAL Printer - Definition Module *)
+
+FROM Types IMPORT MalVal;
+FROM IOChan IMPORT ChanId;
+FROM DynString IMPORT String;
+
+(* Print a MAL value to a DynString.String *)
+PROCEDURE PrStr(val: MalVal; printReadably: BOOLEAN): String;
+
+(* Print a MAL value directly to a channel - zero-copy *)
+PROCEDURE PrStrToChannel(val: MalVal; printReadably: BOOLEAN; cid: ChanId);
+
+END Printer.

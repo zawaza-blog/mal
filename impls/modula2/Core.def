@@ -1,0 +1,103 @@
+DEFINITION MODULE Core;
+
+(* MAL Core Functions - Definition Module *)
+
+FROM Types IMPORT MalVal;
+FROM Env IMPORT Env;
+
+(* Evaluator procedure type - for passing EVAL to Core *)
+TYPE
+  EvalProc = PROCEDURE(MalVal, Env): MalVal;
+
+(* Arithmetic operations *)
+PROCEDURE Add(args: MalVal): MalVal;
+PROCEDURE Sub(args: MalVal): MalVal;
+PROCEDURE Mul(args: MalVal): MalVal;
+PROCEDURE Div(args: MalVal): MalVal;
+
+(* Comparison operations *)
+PROCEDURE Equal(args: MalVal): MalVal;
+PROCEDURE LessThan(args: MalVal): MalVal;
+PROCEDURE LessThanOrEqual(args: MalVal): MalVal;
+PROCEDURE GreaterThan(args: MalVal): MalVal;
+PROCEDURE GreaterThanOrEqual(args: MalVal): MalVal;
+
+(* Logical operations *)
+PROCEDURE NotFn(args: MalVal): MalVal;
+
+(* List operations *)
+PROCEDURE MakeList(args: MalVal): MalVal;
+PROCEDURE MakeVector(args: MalVal): MalVal;
+PROCEDURE MakeHashMap(args: MalVal): MalVal;
+PROCEDURE NormalizeHashMap(hmap: MalVal): MalVal;
+PROCEDURE GetFn(args: MalVal): MalVal;
+PROCEDURE AssocFn(args: MalVal): MalVal;
+PROCEDURE ContainsFn(args: MalVal): MalVal;
+PROCEDURE DissocFn(args: MalVal): MalVal;
+PROCEDURE KeysFn(args: MalVal): MalVal;
+PROCEDURE ValsFn(args: MalVal): MalVal;
+PROCEDURE IsListFn(args: MalVal): MalVal;
+PROCEDURE IsEmptyFn(args: MalVal): MalVal;
+PROCEDURE CountFn(args: MalVal): MalVal;
+PROCEDURE ConsFn(args: MalVal): MalVal;
+PROCEDURE ConcatFn(args: MalVal): MalVal;
+PROCEDURE VecFn(args: MalVal): MalVal;
+PROCEDURE NthFn(args: MalVal): MalVal;
+PROCEDURE FirstFn(args: MalVal): MalVal;
+PROCEDURE RestFn(args: MalVal): MalVal;
+
+(* Quasiquote support *)
+PROCEDURE Quasiquote(ast: MalVal): MalVal;
+
+(* Atom operations *)
+PROCEDURE AtomFn(args: MalVal): MalVal;
+PROCEDURE IsAtomFn(args: MalVal): MalVal;
+PROCEDURE DerefFn(args: MalVal): MalVal;
+PROCEDURE ResetFn(args: MalVal): MalVal;
+PROCEDURE SwapFn(args: MalVal): MalVal;
+
+(* Macro operations *)
+PROCEDURE IsMacroFn(args: MalVal): MalVal;
+
+(* Exception operations *)
+PROCEDURE ThrowFn(args: MalVal): MalVal;
+
+(* Type predicates *)
+PROCEDURE NilPredFn(args: MalVal): MalVal;
+PROCEDURE TruePredFn(args: MalVal): MalVal;
+PROCEDURE FalsePredFn(args: MalVal): MalVal;
+PROCEDURE SymbolPredFn(args: MalVal): MalVal;
+PROCEDURE KeywordPredFn(args: MalVal): MalVal;
+PROCEDURE SequentialPredFn(args: MalVal): MalVal;
+PROCEDURE VectorPredFn(args: MalVal): MalVal;
+PROCEDURE MapPredFn(args: MalVal): MalVal;
+
+(* Symbol and keyword constructors *)
+PROCEDURE SymbolFn(args: MalVal): MalVal;
+PROCEDURE KeywordFn(args: MalVal): MalVal;
+
+(* Functional programming *)
+PROCEDURE ApplyFn(args: MalVal): MalVal;
+PROCEDURE MapFn(args: MalVal): MalVal;
+
+(* Function parameter binding *)
+PROCEDURE BindFunctionParams(params: MalVal; args: MalVal; env: Env): BOOLEAN;
+
+(* String/IO operations *)
+PROCEDURE ReadStringFn(args: MalVal): MalVal;
+PROCEDURE SlurpFn(args: MalVal): MalVal;
+
+(* Evaluation *)
+PROCEDURE EvalFn(args: MalVal): MalVal;
+
+(* Printing operations *)
+PROCEDURE PrStrFn(args: MalVal): MalVal;
+PROCEDURE StrFn(args: MalVal): MalVal;
+PROCEDURE PrnFn(args: MalVal): MalVal;
+PROCEDURE PrintlnFn(args: MalVal): MalVal;
+
+(* REPL environment initialization *)
+PROCEDURE SetEvaluator(evalProc: EvalProc);
+PROCEDURE InitReplEnv(argc: CARDINAL): Env;
+
+END Core.

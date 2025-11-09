@@ -1,0 +1,55 @@
+DEFINITION MODULE DynString;
+
+(* Dynamic String Module - Definition *)
+
+FROM SYSTEM IMPORT ADDRESS;
+FROM IOChan IMPORT ChanId;
+
+TYPE
+  String = POINTER TO StringRec;
+
+  StringRec = RECORD
+    length: CARDINAL;
+    data: ADDRESS;  (* Pointer to dynamically allocated char array *)
+  END;
+
+  CharArrayPtr = POINTER TO ARRAY [0..1000000] OF CHAR;
+
+(* Constructor/Destructor *)
+PROCEDURE Create(VAR src: ARRAY OF CHAR): String;
+PROCEDURE CreateFromArray(src: ARRAY OF CHAR): String;
+PROCEDURE Dispose(VAR str: String);
+
+(* Operations - return new strings *)
+PROCEDURE Concat(str1, str2: String): String;
+PROCEDURE ConcatArray(str: String; arr: ARRAY OF CHAR): String;
+PROCEDURE ArrayConcat(arr: ARRAY OF CHAR; str: String): String;
+PROCEDURE Concat3(arr1: ARRAY OF CHAR; str: String; arr2: ARRAY OF CHAR): String;
+PROCEDURE Copy(str: String): String;
+PROCEDURE AssignFromArray(VAR src: ARRAY OF CHAR; str: String);
+
+(* In-place operations - modify existing string using realloc *)
+PROCEDURE AppendString(VAR str: String; other: String);
+PROCEDURE AppendArray(VAR str: String; arr: ARRAY OF CHAR);
+PROCEDURE AppendChar(VAR str: String; ch: CHAR);
+
+(* Utilities *)
+PROCEDURE Length(str: String): CARDINAL;
+PROCEDURE GetData(str: String): ADDRESS;
+PROCEDURE GetDataPtr(str: String): CharArrayPtr;
+PROCEDURE Compare(str1, str2: String): INTEGER;
+PROCEDURE Equal(str1, str2: String): BOOLEAN;
+PROCEDURE GetChar(str: String; index: CARDINAL): CHAR;
+PROCEDURE EqualArray(str: String; arr: ARRAY OF CHAR): BOOLEAN;
+
+(* String manipulation *)
+PROCEDURE TrimQuotes(str: String): String;
+PROCEDURE AddQuotes(str: String): String;
+PROCEDURE AddQuotesInPlace(VAR str: String);
+PROCEDURE EscapeString(str: String): String;
+
+(* I/O operations *)
+PROCEDURE ReadFromChannel(cid: ChanId): String;
+PROCEDURE WriteToChannel(str: String; cid: ChanId);
+
+END DynString.
