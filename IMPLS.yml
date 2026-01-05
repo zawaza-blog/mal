@@ -60,6 +60,7 @@ IMPL:
   - {IMPL: mal, MAL_IMPL: nim-mal, BUILD_IMPL: nim, NO_SELF_HOST: 1, NO_PERF: 1, SLOW: 1}
   - {IMPL: matlab, NO_SELF_HOST_PERF: 1}  # Octave, perf timeout
   - {IMPL: miniMAL, NO_SELF_HOST_PERF: 1, SLOW: 1}  # perf timeout
+  - {IMPL: modula2}
   - {IMPL: nasm, NO_SELF_HOST: 1}  # needs memory bump, then fails in step7/quasiquote
   - {IMPL: nim}
   - {IMPL: objpascal}
