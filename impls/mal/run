@@ -6,4 +6,4 @@ case ${MAL_IMPL} in
     MAL_IMPL=${MAL_IMPL%%-mal}
     MAL_FILE="../mal/stepA_mal.mal ${MAL_FILE}" ;;
 esac
-exec ./../${MAL_IMPL:-js}/run ${MAL_FILE} "${@}"
+exec ./../${MAL_IMPL:-modula2}/run ${MAL_FILE} "${@}"

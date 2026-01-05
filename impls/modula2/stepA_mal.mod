@@ -102,7 +102,7 @@ BEGIN
 
     (* Evaluate macro body to get expansion *)
     ast := EVAL(macroFn^.body, newEnv);
-    IF HasError() THEN
+    IF HasError() OR HasException() THEN
       RETURN ast;
     END;
   END;
@@ -163,7 +163,7 @@ BEGIN
     curr := ast^.listVal;
     WHILE curr # NIL DO
       evaledItem := EVAL(curr^.val, env);
-      IF HasError() THEN
+      IF HasError() OR HasException() THEN
         RETURN result;
       END;
       ListAppend(result, evaledItem);
@@ -183,7 +183,7 @@ BEGIN
       val := HashMapGetString(ast, keyVal^.strVal);
       (* Evaluate value *)
       evaledItem := EVAL(val, env);
-      IF HasError() THEN
+      IF HasError() OR HasException() THEN
         RETURN result;
       END;
       (* Put evaluated value in result *)
@@ -205,7 +205,7 @@ BEGIN
 
   (* Macro expansion - expand macros before evaluation *)
   ast := MacroExpand(ast, env);
-  IF HasError() THEN
+  IF HasError() OR HasException() THEN
     RETURN ast;
   END;
 
@@ -250,7 +250,7 @@ BEGIN
 
       (* Evaluate the value *)
       evaledItem := EVAL(ListGet(ast, 2), env);
-      IF HasError() THEN
+      IF HasError() OR HasException() THEN
         RETURN evaledItem;
       END;
 
@@ -296,7 +296,7 @@ BEGIN
 
         (* Evaluate value in new environment *)
         evaledItem := EVAL(curr^.next^.val, newEnv);
-        IF HasError() THEN
+        IF HasError() OR HasException() THEN
           RETURN evaledItem;
         END;
 
@@ -323,7 +323,7 @@ BEGIN
 
       (* Evaluate test *)
       evaledItem := EVAL(ListGet(ast, 1), env);
-      IF HasError() THEN
+      IF HasError() OR HasException() THEN
         RETURN evaledItem;
       END;
 
@@ -352,7 +352,7 @@ BEGIN
       (* Evaluate all expressions except the last *)
       FOR i := 1 TO len - 2 DO
         evaledItem := EVAL(ListGet(ast, i), env);
-        IF HasError() THEN
+        IF HasError() OR HasException() THEN
           RETURN evaledItem;
         END;
       END;
@@ -371,7 +371,7 @@ BEGIN
 
       (* Evaluate the argument *)
       evaledItem := EVAL(ListGet(ast, 1), env);
-      IF HasError() THEN
+      IF HasError() OR HasException() THEN
         RETURN evaledItem;
       END;
 
@@ -450,7 +450,7 @@ BEGIN
 
       (* Evaluate the value (should be a function) *)
       evaledItem := EVAL(ListGet(ast, 2), env);
-      IF HasError() THEN
+      IF HasError() OR HasException() THEN
         RETURN evaledItem;
       END;
 
@@ -549,7 +549,7 @@ BEGIN
     curr := ast^.listVal;
     WHILE curr # NIL DO
       evaledItem := EVAL(curr^.val, env);
-      IF HasError() THEN
+      IF HasError() OR HasException() THEN
         RETURN evaledList;
       END;
       ListAppend(evaledList, evaledItem);
