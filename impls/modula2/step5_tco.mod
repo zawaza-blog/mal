@@ -350,8 +350,10 @@ END InitReplEnv;
 VAR
   line: ARRAY [0..1023] OF CHAR;
   output: String;
+  (* Debug modula2 alloc internal linked lists.
   creates, gets, getSteps, sets: CARDINAL;
   cacheHits, cacheMisses: CARDINAL;
+  *)
 
 BEGIN
   stdin := StdInChan();
@@ -375,7 +377,7 @@ BEGIN
 
   WriteLn(stdout);
 
-  (* Print environment profiling stats *)
+  (* Debug modula2 alloc internal linked lists.
   GetEnvStats(creates, gets, getSteps, sets);
   GetCacheStats(cacheHits, cacheMisses);
 
@@ -399,7 +401,6 @@ BEGIN
     WriteLn(stdout);
   END;
 
-  (* Print cache statistics *)
   WriteLn(stdout);
   WriteString(stdout, "=== Cache Statistics ===");
   WriteLn(stdout);
@@ -415,5 +416,6 @@ BEGIN
     WriteString(stdout, "%");
     WriteLn(stdout);
   END;
+  *)
 
 END step5_tco.

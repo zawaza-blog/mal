@@ -167,31 +167,12 @@ BEGIN
     RETURN ast;
   END;
 
-  (* Macro expansion - expand macros before evaluation *)
-  ast := MacroExpand(ast, env);
-  IF HasError() THEN
-    RETURN ast;
-  END;
-
-  (* After macro expansion, if it's not a list, loop back to re-evaluate *)
-  (* This handles cases where a macro expands to a symbol or other non-list *)
-  IF ast^.type # MAL_LIST THEN
-    (* Continue from top of loop - will handle symbols, vectors, etc. *)
-  ELSE
-  (* Only process as list if ast is still a list after macro expansion *)
-
-  (* DEBUG-EVAL support: print form being evaluated after macro expansion *)
   result := EnvGetString(env, debugEvalStr, found);
   IF found AND (result^.type = MAL_TRUE) THEN
     WriteString(stdout, "EVAL: ");
     tempStr := PrStr(ast, TRUE);
     DynString.WriteToChannel(tempStr, stdout);
     WriteLn(stdout);
-  END;
-
-  (* Empty list after macro expansion *)
-  IF ListLength(ast) = 0 THEN
-    RETURN ast;
   END;
 
   (* Check for special forms *)
@@ -433,21 +414,51 @@ BEGIN
       RETURN evaledItem;
 
   ELSE
-    (* Not a special form - evaluate as function application *)
-    (* Evaluate list elements *)
-    evaledList := NewList();
-    curr := ast^.listVal;
-    WHILE curr # NIL DO
-      evaledItem := EVAL(curr^.val, env);
-      IF HasError() THEN
-        RETURN evaledList;
-      END;
-      ListAppend(evaledList, evaledItem);
-      curr := curr^.next;
+    (* https://github.com/kanaka/mal/pull/731#issuecomment-3785750282 *) 
+    (* Use the current approach in the guide for how to handle macroexpand. *)
+    (* Start by evaluating the first element separately. The result must be a function. *)
+    fn := EVAL(ListGet(ast, 0), env);
+    IF HasError() THEN
+      RETURN fn;
     END;
 
-      (* First element should be a function *)
-      fn := ListGet(evaledList, 0);
+    (* Apply the function to the (unevaluated) remaining elements of ast, producing a new form *)
+    IF (fn^.type = MAL_FUNCTION) AND fn^.isMacro THEN
+      (* Collect unevaluated arguments *)
+      args := NewList();
+      len := ListLength(ast);
+      FOR i := 1 TO len - 1 DO
+        ListAppend(args, ListGet(ast, i));
+      END;
+
+      (* Create new environment for macro expansion *)
+      newEnv := NewEnvOuter(CAST(Env, fn^.closure));
+
+      (* Bind parameters to arguments *)
+      IF NOT Core.BindFunctionParams(fn^.params, args, newEnv) THEN
+        RETURN NewNil();
+      END;
+
+      (* Replace AST with the new form and restart the TCO loop. *)
+      ast := EVAL(fn^.body, newEnv);
+      IF HasError() THEN
+        RETURN ast;
+      END;
+      (* Continue loop - will re-evaluate the expanded form *)
+    ELSE
+      (* For functions without the attribute, proceed as before: evaluate *)
+      (* the remaining elements of ast, then apply the function to them.  *)
+      evaledList := NewList();
+      ListAppend(evaledList, fn);  (* Already evaluated *)
+      curr := ast^.listVal^.next;  (* Skip first element *)
+      WHILE curr # NIL DO
+        evaledItem := EVAL(curr^.val, env);
+        IF HasError() THEN
+          RETURN evaledList;
+        END;
+        ListAppend(evaledList, evaledItem);
+        curr := curr^.next;
+      END;
 
       (* Collect arguments (rest of the list) *)
       args := NewList();
@@ -479,9 +490,8 @@ BEGIN
         SetError("Cannot invoke non-function");
         RETURN NewNil();
       END;
+    END;  (* End macro check *)
   END; (* End special forms check *)
-
-  END; (* End ELSE for macro expansion check *)
 
   END; (* TCO loop *)
 END EVAL;
